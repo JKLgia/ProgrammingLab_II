@@ -1,2 +1,3 @@
 # ProgrammingLab_II
-Repo for the programming Lab course personal
+Repo for the programming Lab course.
+All excercise that was gived from 
