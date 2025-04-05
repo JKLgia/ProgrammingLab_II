@@ -1,8 +1,9 @@
-from translate import Translator
-from deep_translator import GoogleTranslator
-from reverso_context_api import Client
-from reverso_api.context import ReversoContextAPI
-import os
+#from translate import Translator
+#from deep_translator import GoogleTranslator
+#from reverso_context_api import Client
+#from reverso_api.context import ReversoContextAPI
+#import os
+from deepl import Translator as DlTranslator
 import re
 import time
 
@@ -12,8 +13,16 @@ It takes the input file name, output file name, source language, and target lang
 It reads the input file, translates the text, and writes the translated text to the output file.
 But need to manipulate the file, beacause not all contenet is translatable.
 The program also handles the case where the input file is not found and prints an error message.
-'''
 
+
+Da creare funzione che conta quanti caratteri sono presenti nel file prima di tradurli e nel caso
+superi il limite deve salvare il resto del file in un altri file e tradurlo in un secondo momento.
+
+Per limitare le parole tradotte si deve creare una funzione che conta il numero di parole uguali e
+questo pattern nella traduzione finale, anziche tradurre 20 volte la stessa parola la traduce 1 volta e 
+poi la sostituisce nelle frasi in cui la parola è usata.
+'''
+authKey = "c398ce81-fd6e-4604-b62d-a9e408fc5ad6:fx" # Chiave DEEPL API
 
 def file_translate(peth_file, source_lang = 'it', target_lang = 'en'):
 
@@ -33,25 +42,39 @@ def file_translate(peth_file, source_lang = 'it', target_lang = 'en'):
             if elemnt.startswith("<translation>"):
                 messaggio.append(elemnt.split(">")[1].split("<")[0])
         
-        #traduzioni = {}
+        #Conta i caratteri delle frasi
+        num_carat = 0
+        for i in messaggio:
+            num_carat += conta_caratteri(i)
+        
+        print(f"Numero di caratteri: {num_carat}")
+
+        if num_carat > 500000:
+            return "Il file supera il limite di 500000 caratteri" #La funzione ritorna un messaggio di errore e non traduce il file
+        
+        '''
+        traduttore = DlTranslator(authKey)
         translate = []
         dictionary = {}
         for message in messaggio:
             try:
                 #api = ReversoContextAPI(str(message), source_lang, target_lang)
                 #client = GoogleTranslator(source_lang, target_lang)
-                translate.append(GoogleTranslator(source_lang, target_lang).translate(str(message)))
-                time.sleep(0.5) # Sleep for 0.5 seconds to avoid hitting the API rate limit
+                translate.append(traduttore.translate_text(str(message), target_lang=target_lang))
+                time.sleep(1) # Sleep for 0.5 seconds to avoid hitting the API rate limit
             except Exception as e:
                 print(f"Error translating message '{message}': {e}")
 
-        
         for i in range(len(numero_allarme)):
             dictionary[numero_allarme[i]] = translate[i]
-    
-    return dictionary
+        '''
+    return 1 #dictionary
 
-
+def conta_caratteri(testo):
+    #Open file in read mode
+    #Count the number of characters in the file
+    num_characters = sum(c.isalpha() for c in testo)
+    return num_characters
 
 
 def insert_new_message(number, message, file):
