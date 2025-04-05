@@ -32,30 +32,31 @@ def file_translate(peth_file, source_lang = 'it', target_lang = 'en'):
         for elemnt in lines:
             if elemnt.startswith("<translation>"):
                 messaggio.append(elemnt.split(">")[1].split("<")[0])
-                
+        
+        #traduzioni = {}
         translate = []
+        dictionary = {}
         for message in messaggio:
             try:
-                api  = ReversoContextAPI(message, source_lang, target_lang)
-                translate = list(client.get_translations(str(message)))
-                time.sleep(0.1) # Sleep for 0.5 seconds to avoid hitting the API rate limit
+                #api = ReversoContextAPI(str(message), source_lang, target_lang)
+                #client = GoogleTranslator(source_lang, target_lang)
+                translate.append(GoogleTranslator(source_lang, target_lang).translate(str(message)))
+                time.sleep(0.5) # Sleep for 0.5 seconds to avoid hitting the API rate limit
             except Exception as e:
                 print(f"Error translating message '{message}': {e}")
 
-            messaggio.append(translate)
-            print(translate)
-
-        dictionary = {}
+        
         for i in range(len(numero_allarme)):
-            dictionary[numero_allarme[i]] = messaggio[i]
+            dictionary[numero_allarme[i]] = translate[i]
     
     return dictionary
 
 
 
+
 def insert_new_message(number, message, file):
     #Open file in write mode
-    with open(file, 'r', encoding='utf-8') as f:
+    with open(file, 'a', encoding='utf-8') as f:
         #Write the new message to the file
         f.write(f"\t\t<message>\n")
         f.write(f"\t\t\t<source>{number}/PLC/PMC</source>\n")
