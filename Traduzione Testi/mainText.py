@@ -52,7 +52,7 @@ def file_translate(peth_file, source_lang = 'it', target_lang = 'en'):
         if num_carat > 500000:
             return "Il file supera il limite di 500000 caratteri" #La funzione ritorna un messaggio di errore e non traduce il file
         
-        '''
+        
         traduttore = DlTranslator(authKey)
         translate = []
         dictionary = {}
@@ -60,15 +60,15 @@ def file_translate(peth_file, source_lang = 'it', target_lang = 'en'):
             try:
                 #api = ReversoContextAPI(str(message), source_lang, target_lang)
                 #client = GoogleTranslator(source_lang, target_lang)
-                translate.append(traduttore.translate_text(str(message), target_lang=target_lang))
+                translate.append(traduttore.translate_text(str(message), target_lang="EN-GB"))
                 time.sleep(1) # Sleep for 0.5 seconds to avoid hitting the API rate limit
             except Exception as e:
                 print(f"Error translating message '{message}': {e}")
 
         for i in range(len(numero_allarme)):
             dictionary[numero_allarme[i]] = translate[i]
-        '''
-    return 1 #dictionary
+        
+    return dictionary
 
 def conta_caratteri(testo):
     #Open file in read mode
@@ -76,6 +76,15 @@ def conta_caratteri(testo):
     num_characters = sum(c.isalpha() for c in testo)
     return num_characters
 
+
+def insert_start_file(file):
+    #Open file in write mode
+    with open(file, 'w', encoding='utf-8') as f:
+        #Write the start of the file
+        f.write(f"<!DOCTYPE TS>\n")
+        f.write(f"<TS>\n")
+        f.write(f"\t<context>\n")
+        f.write(f"\t\t<name>saleconv</name>\n")
 
 def insert_new_message(number, message, file):
     #Open file in write mode
@@ -86,15 +95,28 @@ def insert_new_message(number, message, file):
         f.write(f"\t\t\t<translation>{message}</translation>\n") #\t is used to add a tab space
         f.write(f"\t\t</message>\n")
 
+def insert_end_file(file):
+    #Open file in write mode
+    with open(file, 'a', encoding='utf-8') as f:
+        #Write the end of the file
+        f.write(f"\t</context>\n")
+        f.write(f"</TS>\n")
+
 
 
 input_file = 'C:\\Users\\Media\\Desktop\\LG_LabProgramming_II\\ProgrammingLab_II\\Traduzione Testi\\oem_alarms_plc_ita.txt'  # Input file name
-output_file = 'output.txt'  # Output file name
-source_lang = 'it'  # Source language code (e.g., 'en' for English, 'it' for Italian)
-target_lang = 'en'  # Target language code (e.g., 'en' for English, 'it' for Italian)
+source_lang = "IT"  # Source language code (e.g., 'en' for English, 'it' for Italian)
+target_lang = "EN-GB"  # Target language code (e.g., 'en' for English, 'it' for Italian)
+output_file = 'oem_alarms_plc_{target_lang}.ts'  # Output file name
 
 dictionary = file_translate(input_file)
-print(dictionary)
+
+insert_start_file(output_file)
+for i in dictionary:
+    insert_new_message(i, dictionary[i], output_file)
+
+insert_end_file(output_file)
+print(f"File tradotto e salvato.")
 
     
 
